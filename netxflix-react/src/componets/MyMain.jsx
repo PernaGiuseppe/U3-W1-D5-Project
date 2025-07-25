@@ -37,7 +37,7 @@ function MyMain() {
 
       <section className="my-4">
         <h3 className="mb-3 text-light">Trending Now</h3>
-        <FilmList title="Star Wars" />
+        <FilmList title="Marvel" />
       </section>
       <section className="my-3">
         <h3 className="mb-3 text-light">Watch it Again</h3>
@@ -45,7 +45,7 @@ function MyMain() {
       </section>
       <section className="my-3">
         <h3 className="mb-3 text-light">New Releases</h3>
-        <FilmList title="Marvel" />
+        <FilmList title="Star Wars" />
       </section>
     </Container>
   )

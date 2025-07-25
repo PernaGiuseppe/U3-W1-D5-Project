@@ -1,5 +1,13 @@
 import { Component } from 'react'
-import { Row, Col, Card, Spinner, Alert } from 'react-bootstrap'
+import {
+  Row,
+  Col,
+  Card,
+  Spinner,
+  Alert,
+  Carousel,
+  Container,
+} from 'react-bootstrap'
 const filmLink = `http://www.omdbapi.com/?apikey=9597bf94&s=`
 // Questo è il link dell'API con la mia apikey già inserita, pronto per il search tramite il codice
 
@@ -50,6 +58,16 @@ class FilmList extends Component {
   render() {
     const { films, isLoading, isError } = this.state
 
+    const chunkArray = (arr, chunkSize) => {
+      const R = []
+      for (let i = 0; i < arr.length; i += chunkSize)
+        R.push(arr.slice(i, i + chunkSize))
+      return R
+    }
+
+    const filmsPerSlide = 6
+    const chunkedFilms = chunkArray(films, filmsPerSlide)
+
     return (
       <>
         {isLoading && (
@@ -74,24 +92,40 @@ class FilmList extends Component {
         )}
 
         {!isLoading && !isError && films.length > 0 && (
-          <Row className="netflix-carousel-row">
-            {films.map((film) => (
-              <Col key={film.imdbID} className="my-2">
-                <Card className="shadow border-0 h-100">
-                  <Card.Img
-                    variant="top"
-                    src={film.Poster}
-                    alt={film.Title}
-                    style={{
-                      objectFit: 'cover',
-                      height: '200px',
-                      cursor: 'pointer',
-                    }}
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          <Container className="netflix-carousel-container">
+            <Carousel indicators={false} controls={true} interval={null}>
+              {chunkedFilms.map((films, index) => (
+                <Carousel.Item key={index}>
+                  <Row className="netflix-carousel-row flex-nowrap overflow-hidden">
+                    {films.map((film) => (
+                      <Col
+                        key={film.imdbID}
+                        xs={6}
+                        sm={4}
+                        md={3}
+                        lg={2}
+                        className="my-2"
+                      >
+                        {' '}
+                        <Card className="shadow border-0 h-100 bg-dark text-light">
+                          <Card.Img
+                            variant="top"
+                            src={film.Poster}
+                            alt={film.Title}
+                            style={{
+                              objectFit: 'cover',
+                              height: '300px',
+                              cursor: 'pointer',
+                            }}
+                          />
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          </Container>
         )}
       </>
     )
