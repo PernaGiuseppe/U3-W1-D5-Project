@@ -7,37 +7,69 @@ import {
   Image,
 } from 'react-bootstrap'
 import { BsSearch, BsBellFill } from 'react-icons/bs'
+import { Link, useLocation } from 'react-router-dom'
 
 function MyHeader() {
+  const location = useLocation()
   return (
     <header>
       <Navbar expand="lg">
         <Container>
-          <Navbar.Brand href="#">
+          <Link className="navbar-brand " to={'/'}>
             <Image
               height="40"
               src="/media/netflix_logo.png"
               alt="Netflix Logo"
             />
-          </Navbar.Brand>
+          </Link>
           <Navbar.Toggle aria-controls="navbarSupportedContent" />
           <Navbar.Collapse id="navbarSupportedContent">
             <Nav className="me-auto mb-2 mb-lg-0">
-              <Nav.Link href="#" className="text-light" active>
+              <Link
+                className={
+                  'nav-link text-light ' +
+                  (location.pathname === '/' ? ' fw-bold' : '')
+                }
+                to="/"
+              >
                 Home
-              </Nav.Link>
-              <Nav.Link href="#" className="text-light">
-                <span className="fw-bold">TV Shows</span>
-              </Nav.Link>
-              <Nav.Link href="#" className="text-light">
+              </Link>
+              <Link
+                className={
+                  'nav-link text-light' +
+                  (location.pathname === '/tvshows' ? ' fw-bold' : '')
+                }
+                to="/tvshows"
+              >
+                TV Shows
+              </Link>
+              <Link
+                className={
+                  'nav-link text-light' +
+                  (location.pathname === '/movies' ? ' fw-bold' : '')
+                }
+                to="/movies"
+              >
                 Movies
-              </Nav.Link>
-              <Nav.Link href="#" className="text-light">
+              </Link>
+              <Link
+                className={
+                  'nav-link text-light' +
+                  (location.pathname === '/recent' ? ' fw-bold' : '')
+                }
+                to="/recent"
+              >
                 Recently Added
-              </Nav.Link>
-              <Nav.Link href="#" className="text-light">
+              </Link>
+              <Link
+                className={
+                  'nav-link text-light' +
+                  (location.pathname === '/mylist' ? ' fw-bold' : '')
+                }
+                to="/mylist"
+              >
                 My List
-              </Nav.Link>
+              </Link>
             </Nav>
             <div className="d-flex flex-column flex-lg-row align-items-center mt-3 mt-lg-0">
               <Button

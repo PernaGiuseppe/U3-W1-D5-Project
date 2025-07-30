@@ -52,10 +52,14 @@ footer {
   font-size: 0.6em;
 }
 
-.col img {
+.card img {
   transition: transform 0.2s;
 }
 
-.col img:hover {
+.card img:hover {
   transform: scale(1.1);
+}
+.card-link {
+  text-decoration: 'none';
+  color: 'inherit';
 }

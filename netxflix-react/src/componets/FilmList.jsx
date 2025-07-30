@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Row,
   Col,
@@ -8,105 +8,107 @@ import {
   Carousel,
   Container,
 } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import '../assets/netflix.css'
+
 const filmLink = `http://www.omdbapi.com/?apikey=9597bf94&s=`
-// Questo è il link dell'API con la mia apikey già inserita, pronto per il search tramite il codice
 
-class FilmList extends Component {
-  state = {
-    films: [],
-    isLoading: true,
-    isError: false,
-  }
+const FilmList = ({ title }) => {
+  const [films, setFilms] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isError, setIsError] = useState(false)
 
-  arrayFilm = () => {
-    fetch(filmLink + this.props.title)
-      // tramite questa fetch, faccio la GET dall'api dei film, poi in mymain, tramite il <filmlist/> do come props il titolo da cercare
-      // tramite l'elemento title="", infatti se non vi sono elementi tra gli apici, da errore
+  const fetchFilms = () => {
+    if (!title) {
+      setIsLoading(false)
+      setIsError(true)
+      alert('Nessun titolo fornito')
+      return
+    }
+
+    fetch(filmLink + title)
       .then((response) => {
         if (response.ok) {
           return response.json()
         }
+
         throw new Error(
           `Errore nel recupero dei film: HTTP status ${response.status}`
         )
       })
       .then((data) => {
-        this.setState({
-          films: data.Search,
-          isLoading: false,
-          isError: false,
-        })
+        if (data.Search) {
+          setFilms(data.Search)
+          setIsError(false)
+        } else {
+          setFilms([])
+          setIsError(true)
+        }
+        setIsLoading(false)
       })
       .catch((error) => {
         console.error('Errore nel recupero dati:', error)
-        this.setState({
-          isLoading: false,
-          isError: true,
-          films: [],
-        })
+        setIsLoading(false)
+        setIsError(true)
+        setFilms([])
       })
   }
-  componentDidMount() {
-    if (this.props.title) {
-      this.arrayFilm()
-    } else {
-      this.setState({ isLoading: false, isError: true })
-      alert('Nessun titolo fornito')
-    }
+
+  useEffect(() => {
+    fetchFilms()
+  }, [title])
+  const chunkArray = (arr, chunkSize) => {
+    const R = []
+    for (let i = 0; i < arr.length; i += chunkSize)
+      R.push(arr.slice(i, i + chunkSize))
+    return R
   }
 
-  render() {
-    const { films, isLoading, isError } = this.state
+  const filmsPerSlide = 6
+  const chunkedFilms = chunkArray(films, filmsPerSlide)
 
-    const chunkArray = (arr, chunkSize) => {
-      const R = []
-      for (let i = 0; i < arr.length; i += chunkSize)
-        R.push(arr.slice(i, i + chunkSize))
-      return R
-    }
+  return (
+    <>
+      {isLoading && (
+        <Row className="justify-content-center my-3 ">
+          <Col xs={12} className="text-center">
+            <Spinner animation="border" role="status" className="text-light">
+              <span className="visually-hidden">Caricamento...</span>
+            </Spinner>
+          </Col>
+        </Row>
+      )}
 
-    const filmsPerSlide = 6
-    const chunkedFilms = chunkArray(films, filmsPerSlide)
+      {isError && !isLoading && (
+        <Row className="justify-content-center my-3">
+          <Col xs={12} className="text-center">
+            <Alert variant="danger">
+              Errore nel recupero dei film o nessun risultato trovato per "
+              {title}". Per favore riprova.
+            </Alert>
+          </Col>
+        </Row>
+      )}
 
-    return (
-      <>
-        {isLoading && (
-          <Row className="justify-content-center my-3 ">
-            <Col xs={12} className="text-center">
-              <Spinner animation="border" role="status" className="text-light">
-                <span className="visually-hidden">Caricamento...</span>
-              </Spinner>
-            </Col>
-          </Row>
-        )}
-
-        {isError && !isLoading && (
-          <Row className="justify-content-center my-3">
-            <Col xs={12} className="text-center">
-              <Alert variant="danger">
-                Errore nel recupero dei film o nessun risultato trovato per "
-                {this.props.title}". Per favore riprova.
-              </Alert>
-            </Col>
-          </Row>
-        )}
-
-        {!isLoading && !isError && films.length > 0 && (
-          <Container className="netflix-carousel-container">
-            <Carousel indicators={false} controls={true} interval={null}>
-              {chunkedFilms.map((films, index) => (
-                <Carousel.Item key={index}>
-                  <Row className="netflix-carousel-row flex-nowrap overflow-hidden">
-                    {films.map((film) => (
-                      <Col
-                        key={film.imdbID}
-                        xs={6}
-                        sm={4}
-                        md={3}
-                        lg={2}
-                        className="my-2"
+      {!isLoading && !isError && films.length > 0 && (
+        <Container className="netflix-carousel-container">
+          <Carousel indicators={false} controls={true} interval={null}>
+            {chunkedFilms.map((films, index) => (
+              <Carousel.Item key={index}>
+                <Row className="netflix-carousel-row flex-nowrap overflow-hidden">
+                  {films.map((film) => (
+                    <Col
+                      key={film.imdbID}
+                      xs={6}
+                      sm={4}
+                      md={3}
+                      lg={2}
+                      className="my-2"
+                    >
+                      <Link
+                        className="card-link"
+                        to={'/movie-details/' + film.imdbID}
                       >
-                        {' '}
                         <Card className="shadow border-0 h-100 bg-dark text-light">
                           <Card.Img
                             variant="top"
@@ -119,17 +121,17 @@ class FilmList extends Component {
                             }}
                           />
                         </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                </Carousel.Item>
-              ))}
-            </Carousel>
-          </Container>
-        )}
-      </>
-    )
-  }
+                      </Link>
+                    </Col>
+                  ))}
+                </Row>
+              </Carousel.Item>
+            ))}
+          </Carousel>
+        </Container>
+      )}
+    </>
+  )
 }
 
 export default FilmList
